@@ -1,5 +1,7 @@
 use {solana_hash::Hash, solana_sha256_hasher::hashv};
 
+// Adding an insert method and some tests
+
 // We need to discern between leaf and intermediate nodes to prevent trivial second
 // pre-image attacks.
 // https://flawed.net.nz/2018/02/21/attacking-merkle-trees-with-a-second-preimage-attack
