@@ -1,0 +1,13 @@
+[package]
+name = "merkle_tree_svm"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+fast-math = "0.1"
+solana-hash = "2.1.13"
+solana-sha256-hasher = "2.1.13"
+bincode = "2.0.0-rc"
+solana-sdk = "2.1.10"
+[dev-dependencies]
+hex = "0.4.3"
