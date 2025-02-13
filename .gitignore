@@ -1,2 +1,4 @@
 /target
 merkle_tree2.rs
+merkle_tree.rs
+smt.rs
