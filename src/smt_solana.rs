@@ -215,8 +215,16 @@ mod tests {
         };
         smt.insert(&transaction_data2);
 
-        // Verify that we have at least 2 nodes in the tree after the insertions
-        assert_eq!(smt.tree.len(), 2, "The number of nodes in the tree should be 2 after two insertions.");
+        // Insert a third transaction
+        let transaction_data3 = TransactionData {
+            sender: generate_random_pubkey(),
+            receiver: generate_random_pubkey(),
+            amount: generate_random_amount(),
+        };
+        smt.insert(&transaction_data3);
+
+        // Verify that we have at least 3 nodes in the tree after the insertions
+        assert_eq!(smt.tree.len(), 3, "The number of nodes in the tree should be 3 after three insertions.");
 
         // Generate a proof for the first transaction's index (index 0)
         let proof = smt.generate_proof(0);
@@ -235,8 +243,19 @@ mod tests {
 
         // Print the proof for the second transaction for debugging
         println!("Proof for the second transaction (index 1): {:?}", proof2);
-    }
 
+        // Generate a proof for the third transaction's index (index 2)
+        let proof3 = smt.generate_proof(2);
+
+        // Verify that the proof is not empty
+        assert!(!proof3.is_empty(), "Proof should not be empty for the third transaction index.");
+
+        // Print the proof for the third transaction for debugging
+        println!("Proof for the third transaction (index 2): {:?}", proof3);
+
+        // Check if the proofs are different (optional, depending on your expectations)
+        assert_ne!(proof2, proof3, "Proof for transaction indexed at 1 and indexed at 2 should not be identical.");
+    }
 
 
 }
