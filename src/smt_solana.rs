@@ -62,6 +62,24 @@ impl SparseMerkleTree {
 
         self.root = current_hash; // Update the root
     }
+    
+   // Generate a proof for a given transaction index
+   pub fn generate_proof(&self, index: u64) -> Vec<Hash> {
+        let mut proof = Vec::new();
+        let mut current_index = index;
+        let mut current_hash = self.tree.get(&current_index).cloned().unwrap_or(Hash::default());
+
+        // Traverse the tree to collect sibling hashes
+        for _level in 0..TREE_DEPTH {
+            let sibling_index = current_index ^ 1; // Find the sibling (even/odd index)
+            let sibling_hash = self.tree.get(&sibling_index).cloned().unwrap_or(Hash::default());
+            proof.push(sibling_hash);
+
+            current_index /= 2; // Move up the tree
+        }
+
+        proof
+    }
 
     // Verify the root
     pub fn verify_root(&self, root: &Hash) -> bool {
@@ -137,4 +155,88 @@ mod tests {
         assert_ne!(root1, root2, "Roots should not be identical after multiple insertions.");
         assert!(smt.verify_root(&root2), "The root after multiple insertions is incorrect.");
     }
+    #[test]
+    fn test_transaction_with_specific_index() {
+        let mut smt = SparseMerkleTree::new();
+
+        // Insert a first transaction
+        let transaction_data1 = TransactionData {
+            sender: generate_random_pubkey(),
+            receiver: generate_random_pubkey(),
+            amount: generate_random_amount(),
+        };
+        smt.insert(&transaction_data1);
+
+        // Insert a second transaction
+        let transaction_data2 = TransactionData {
+            sender: generate_random_pubkey(),
+            receiver: generate_random_pubkey(),
+            amount: generate_random_amount(),
+        };
+        smt.insert(&transaction_data2);
+
+        // Check if the indices of the transactions are correctly assigned
+        assert_eq!(smt.tree.len(), 2, "The number of nodes in the tree should be 2 after two insertions.");
+    }
+    #[test]
+    fn test_transaction_with_missing_sibling() {
+        let mut smt = SparseMerkleTree::new();
+
+        // Insert a single transaction (no sibling)
+        let transaction_data = TransactionData {
+            sender: generate_random_pubkey(),
+            receiver: generate_random_pubkey(),
+            amount: generate_random_amount(),
+        };
+
+        smt.insert(&transaction_data);
+
+        // The number of nodes should be 1 after a single insertion
+        assert_eq!(smt.tree.len(), 1, "There should be 1 node in the tree after the first insertion.");
+    }
+
+    #[test]
+    fn test_generate_proof() {
+        let mut smt = SparseMerkleTree::new();
+
+        // Insert a first transaction
+        let transaction_data1 = TransactionData {
+            sender: generate_random_pubkey(),
+            receiver: generate_random_pubkey(),
+            amount: generate_random_amount(),
+        };
+        smt.insert(&transaction_data1);
+
+        // Insert a second transaction
+        let transaction_data2 = TransactionData {
+            sender: generate_random_pubkey(),
+            receiver: generate_random_pubkey(),
+            amount: generate_random_amount(),
+        };
+        smt.insert(&transaction_data2);
+
+        // Verify that we have at least 2 nodes in the tree after the insertions
+        assert_eq!(smt.tree.len(), 2, "The number of nodes in the tree should be 2 after two insertions.");
+
+        // Generate a proof for the first transaction's index (index 0)
+        let proof = smt.generate_proof(0);
+
+        // Verify that the proof is not empty
+        assert!(!proof.is_empty(), "Proof should not be empty for the first transaction index.");
+
+        // Print the proof for debugging purposes
+        println!("Proof for the first transaction (index 0): {:?}", proof);
+
+        // Generate a proof for the second transaction's index (index 1)
+        let proof2 = smt.generate_proof(1);
+
+        // Verify that the proof is not empty
+        assert!(!proof2.is_empty(), "Proof should not be empty for the second transaction index.");
+
+        // Print the proof for the second transaction for debugging
+        println!("Proof for the second transaction (index 1): {:?}", proof2);
+    }
+
+
+
 }
