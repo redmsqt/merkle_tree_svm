@@ -198,64 +198,28 @@ mod tests {
     #[test]
     fn test_generate_proof() {
         let mut smt = SparseMerkleTree::new();
-
-        // Insert a first transaction
-        let transaction_data1 = TransactionData {
-            sender: generate_random_pubkey(),
-            receiver: generate_random_pubkey(),
-            amount: generate_random_amount(),
-        };
-        smt.insert(&transaction_data1);
-
-        // Insert a second transaction
-        let transaction_data2 = TransactionData {
-            sender: generate_random_pubkey(),
-            receiver: generate_random_pubkey(),
-            amount: generate_random_amount(),
-        };
-        smt.insert(&transaction_data2);
-
-        // Insert a third transaction
-        let transaction_data3 = TransactionData {
-            sender: generate_random_pubkey(),
-            receiver: generate_random_pubkey(),
-            amount: generate_random_amount(),
-        };
-        smt.insert(&transaction_data3);
-
-        // Verify that we have at least 3 nodes in the tree after the insertions
-        assert_eq!(smt.tree.len(), 3, "The number of nodes in the tree should be 3 after three insertions.");
-
-        // Generate a proof for the first transaction's index (index 0)
-        let proof = smt.generate_proof(0);
-
-        // Verify that the proof is not empty
-        assert!(!proof.is_empty(), "Proof should not be empty for the first transaction index.");
-
-        // Print the proof for debugging purposes
-        println!("Proof for the first transaction (index 0): {:?}", proof);
-
-        // Generate a proof for the second transaction's index (index 1)
-        let proof2 = smt.generate_proof(1);
-
-        // Verify that the proof is not empty
-        assert!(!proof2.is_empty(), "Proof should not be empty for the second transaction index.");
-
-        // Print the proof for the second transaction for debugging
-        println!("Proof for the second transaction (index 1): {:?}", proof2);
-
-        // Generate a proof for the third transaction's index (index 2)
-        let proof3 = smt.generate_proof(2);
-
-        // Verify that the proof is not empty
-        assert!(!proof3.is_empty(), "Proof should not be empty for the third transaction index.");
-
-        // Print the proof for the third transaction for debugging
-        println!("Proof for the third transaction (index 2): {:?}", proof3);
-
-        // Check if the proofs are different (optional, depending on your expectations)
-        assert_ne!(proof2, proof3, "Proof for transaction indexed at 1 and indexed at 2 should not be identical.");
+    
+        // Insert 10 transactions
+        for _ in 0..10 {
+            let transaction_data = TransactionData {
+                sender: generate_random_pubkey(),
+                receiver: generate_random_pubkey(),
+                amount: generate_random_amount(),
+            };
+            smt.insert(&transaction_data);
+        }
+    
+        // Verify that the tree contains 10 nodes after the insertions
+        assert_eq!(smt.tree.len(), 10, "The number of nodes in the tree should be 10 after 10 insertions.");
+    
+        // Generate and display a proof for each transaction
+        for i in 0..10 {
+            let proof = smt.generate_proof(i);
+            assert!(!proof.is_empty(), "{}", format!("Proof should not be empty for index {}", i));
+    
+            // Display the proof for debugging
+            println!("Proof for the transaction at index {}: {:?}", i, proof);
+        }
     }
-
 
 }
