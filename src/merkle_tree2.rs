@@ -119,7 +119,7 @@ impl MerkleTree {
             
             index /= 2;
             level_start += level_size;
-            level_size = (level_size + 1) / 2; // Si impair, dernier élément est copié
+            level_size = (level_size + 1) / 2; // If odd, last element is copied
             
             let mut next_level = Vec::new();
             for chunk in current_level.chunks(2) {
