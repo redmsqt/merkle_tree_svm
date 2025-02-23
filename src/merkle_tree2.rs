@@ -1,20 +1,21 @@
 use solana_hash::Hash;
 use solana_sha256_hasher::hashv;
-use solana_sdk::pubkey::Pubkey;
+use solana_sdk::{pubkey::Pubkey, account::Account};
 use bincode::serialize;
 use serde::{Serialize, Deserialize};
 
-/// Represents a Solana account in the Merkle Tree
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct SolanaAccount {
-    pub lamports: u64,
-    pub data: Vec<u8>,
-    pub executable: bool,
-    pub rent_epoch: u64,
-    pub owner: Pubkey,
-}
 
-#[derive(Clone, Debug)]
+// /// Represents a Solana account in the Merkle Tree
+// #[derive(Serialize, Deserialize, Clone, Debug)]
+// pub struct SolanaAccount {
+//     pub lamports: u64,
+//     pub data: Vec<u8>,
+//     pub executable: bool,
+//     pub rent_epoch: u64,
+//     pub owner: Pubkey,
+// }
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct MerkleTree {
     leaves: Vec<(Pubkey, Hash)>,    // Tree leaves with Pubkey and Hash
     tree: Vec<Hash>,                // All tree nodes (including leaves)
@@ -31,13 +32,13 @@ impl MerkleTree {
     }
 
     /// Hash of a Solana account
-    fn hash_account(account: &SolanaAccount) -> Hash {
+    fn hash_account(account: &Account) -> Hash {
         let account_bytes = serialize(account).unwrap();
         hashv(&[&account_bytes])
     }
 
     /// Inserts an account into the Merkle tree
-    pub fn insert(&mut self, pubkey: Pubkey, account: &SolanaAccount) {
+    pub fn insert(&mut self, pubkey: Pubkey, account: &Account) {
         let account_hash = Self::hash_account(account);
         self.leaves.push((pubkey, account_hash));
         self.build_tree();
@@ -149,8 +150,8 @@ mod tests {
     use solana_sdk::signature::{Keypair, Signer}; // For generating pubkeys
 
 
-    fn create_example_account(pubkey: Pubkey) -> SolanaAccount {
-        SolanaAccount {
+    fn create_example_account(pubkey: Pubkey) -> Account {
+        Account {
             lamports: 1000,
             data: vec![1, 2, 3, 4],
             executable: false,
@@ -202,7 +203,7 @@ mod tests {
         let mut merkle_tree = MerkleTree::new();
 
         let pubkey1 = Pubkey::new_unique();
-        let account1 = SolanaAccount {
+        let account1 = Account {
             lamports: 1000,
             data: vec![1, 2, 3],
             executable: false,
@@ -212,7 +213,7 @@ mod tests {
         merkle_tree.insert(pubkey1, &account1);
 
         let pubkey2 = Pubkey::new_unique();
-        let account2 = SolanaAccount {
+        let account2 = Account {
             lamports: 2000,
             data: vec![4, 5, 6],
             executable: false,
@@ -224,7 +225,7 @@ mod tests {
         println!("tree after insert pubkey2: {:?}", merkle_tree.tree);
 
         let pubkey3 = Pubkey::new_unique();
-        let account3 = SolanaAccount {
+        let account3 = Account {
             lamports: 2000,
             data: vec![3, 3, 3],
             executable: false,
@@ -234,7 +235,7 @@ mod tests {
         merkle_tree.insert(pubkey3, &account3);
 
         let pubkey4 = Pubkey::new_unique();
-        let account4 = SolanaAccount {
+        let account4 = Account {
             lamports: 2000,
             data: vec![4, 4, 4],
             executable: false,
@@ -244,7 +245,7 @@ mod tests {
         merkle_tree.insert(pubkey4, &account4);
 
         let pubkey5 = Pubkey::new_unique();
-        let account5 = SolanaAccount {
+        let account5 = Account {
             lamports: 2000,
             data: vec![5, 5, 5],
             executable: false,
@@ -256,7 +257,7 @@ mod tests {
         
 
         let pubkey6 = Pubkey::new_unique();
-        let account6 = SolanaAccount {
+        let account6 = Account {
             lamports: 2000,
             data: vec![6, 6, 6],
             executable: false,
@@ -268,7 +269,7 @@ mod tests {
         
 
         let pubkey7 = Pubkey::new_unique();
-        let account7 = SolanaAccount {
+        let account7 = Account {
             lamports: 2000,
             data: vec![7, 7, 7],
             executable: false,
@@ -280,7 +281,7 @@ mod tests {
         
 
         let pubkey8 = Pubkey::new_unique();
-        let account8 = SolanaAccount {
+        let account8 = Account {
             lamports: 2000,
             data: vec![8, 8, 8],
             executable: false,
